@@ -59,9 +59,9 @@ def get_evaluation_criteria(department):
     """Get evaluation criteria for a department"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Tìm theo department chính xác hoặc theo pattern
+    # Tìm theo department chính xác hoặc theo pattern và sắp xếp theo category và kra_name
     cursor.execute(
-        "SELECT * FROM evaluation_criteria WHERE department = ? OR department LIKE ?",
+        "SELECT * FROM evaluation_criteria WHERE department = ? OR department LIKE ? ORDER BY category, kra_name",
         (department, f"%{department.split('(')[0].strip()}%")
     )
     criteria = [dict(row) for row in cursor.fetchall()]
