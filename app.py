@@ -248,10 +248,19 @@ def employee_dashboard():
             comp_levels = {}
             comp_comments = {}
             
+            # Check if user is manager to show leadership competencies
+            user_role = st.session_state.user.get('role_type', 'employee')
+            is_manager = user_role == 'manager'
+            
             # Group competencies by category
             comp_categories = {}
             for comp in competencies:
                 cat = comp.get('category', 'Khác')
+                
+                # Skip category B (leadership) for non-managers
+                if cat == 'B. Năng lực quản lý, lãnh đạo' and not is_manager:
+                    continue
+                    
                 if cat not in comp_categories:
                     comp_categories[cat] = []
                 comp_categories[cat].append(comp)
@@ -339,9 +348,14 @@ def employee_dashboard():
             # Calculate competency score
             # Map level to percentage: 1->50%, 2->80%, 3->100%, 4->120%, 5->150%
             level_percentages = {1: 50, 2: 80, 3: 100, 4: 120, 5: 150}
+            
+            # Filter competencies based on role (exclude category B for employees)
+            relevant_competencies = [c for c in competencies 
+                                    if is_manager or c.get('category') != 'B. Năng lực quản lý, lãnh đạo']
+            
             comp_score = sum(level_percentages[comp_levels.get(c['id'], 3)] * c.get('importance_level', 2)
-                           for c in competencies if c['id'] in comp_levels)
-            total_comp_weight = sum(c.get('importance_level', 2) * 100 for c in competencies)
+                           for c in relevant_competencies if c['id'] in comp_levels)
+            total_comp_weight = sum(c.get('importance_level', 2) * 100 for c in relevant_competencies)
             comp_result = (comp_score / total_comp_weight * 100) if total_comp_weight > 0 else 0
             
             # Final calculation
