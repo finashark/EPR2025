@@ -1,0 +1,100 @@
+# Environment variables
+.env
+.env.local
+
+# Claude and OpenCode
+.claude/
+.opencode/
+.repomixignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Database
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Streamlit
+.streamlit/
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary/test files
+*.tmp
+temp_*
+test_*.py
+debug_*.py
+check_*.py
+fix_*.py
+update_*.py
+add_*.py
+import_*.py
+read_*.py
+analyze_*.py
+find_*.py
+verify_*.py
+view_*.py
+export_*.py
+setup_*.py
+create_backup.py
+delete_duplicates.py
+simple_*.py
+list_*.py
+get_*.py
+*_backup.py
+*_working.py
+*_refactored.py
+
+# Backup folders
+backup_*/
+
+# Excel temp files
+~$*.xlsx
+~$*.xls
+
+# Test outputs
+output.txt
+thy_output.txt
+
+# Generated PDFs (except samples)
+*.pdf
+!EPR_Sample_*.pdf
+
+# Documentation drafts
+CLAUDE.md
+plans/
+TEST_REPORT.txt
+
+# Keep these important files
+!epr_system.db
+!HFM Credentials.xlsx
+!README_PRODUCTION.md
