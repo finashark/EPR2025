@@ -13,18 +13,13 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-# Register Vietnamese font with proper Unicode support
+# Register Vietnamese font - Remove UTF-8 parameter as it's not valid
 try:
-    # Try to use fonts with excellent Vietnamese Unicode support
-    # Priority: DejaVu, Calibri, Segoe UI, Arial, Times, Tahoma
+    # Priority fonts with good Vietnamese support
     font_configs = [
-        ('DejaVuSans.ttf', 'DejaVuSans-Bold.ttf', 'DejaVu Sans'),
-        ('calibri.ttf', 'calibrib.ttf', 'Calibri'),
-        ('seguibl.ttf', 'seguisb.ttf', 'Segoe UI'),
         ('arial.ttf', 'arialbd.ttf', 'Arial'),
         ('times.ttf', 'timesbd.ttf', 'Times New Roman'),
         ('tahoma.ttf', 'tahomabd.ttf', 'Tahoma'),
-        ('ARIALUNI.TTF', 'ARIALUNI.TTF', 'Arial Unicode MS'),
     ]
     
     font_registered = False
@@ -37,32 +32,21 @@ try:
         
         if os.path.exists(regular_path):
             try:
-                # Register with UTF-8 encoding support
-                pdfmetrics.registerFont(TTFont(font_name, regular_path, 'UTF-8'))
+                # Register fonts WITHOUT encoding parameter (reportlab handles it internally)
+                pdfmetrics.registerFont(TTFont(font_name, regular_path))
                 
                 # Try to register bold font, if not available use regular
                 if os.path.exists(bold_path):
-                    pdfmetrics.registerFont(TTFont(font_name_bold, bold_path, 'UTF-8'))
+                    pdfmetrics.registerFont(TTFont(font_name_bold, bold_path))
                 else:
-                    pdfmetrics.registerFont(TTFont(font_name_bold, regular_path, 'UTF-8'))
+                    pdfmetrics.registerFont(TTFont(font_name_bold, regular_path))
                 
                 font_registered = True
-                print(f"✓ Registered Vietnamese font: {name} (UTF-8)")
+                print(f"✓ Registered Vietnamese font: {name}")
                 break
             except Exception as e:
-                # Try without explicit encoding
-                try:
-                    pdfmetrics.registerFont(TTFont(font_name, regular_path))
-                    if os.path.exists(bold_path):
-                        pdfmetrics.registerFont(TTFont(font_name_bold, bold_path))
-                    else:
-                        pdfmetrics.registerFont(TTFont(font_name_bold, regular_path))
-                    font_registered = True
-                    print(f"✓ Registered Vietnamese font: {name} (default encoding)")
-                    break
-                except Exception as e2:
-                    print(f"Failed to register {name}: {e2}")
-                    continue
+                print(f"Failed to register {name}: {e}")
+                continue
     
     if not font_registered:
         # Fallback to default font if no suitable font found
@@ -89,7 +73,7 @@ def generate_evaluation_pdf(user_info, evaluation_data):
     base_font = font_name
     base_font_bold = font_name_bold
     
-    # Custom styles
+    # Custom styles with encoding support
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
@@ -97,7 +81,8 @@ def generate_evaluation_pdf(user_info, evaluation_data):
         fontSize=16,
         textColor=colors.HexColor('#1f4788'),
         spaceAfter=12,
-        alignment=1  # Center
+        alignment=1,  # Center
+        wordWrap='CJK'  # Support for Unicode characters
     )
     
     heading_style = ParagraphStyle(
@@ -106,18 +91,21 @@ def generate_evaluation_pdf(user_info, evaluation_data):
         fontName=base_font_bold,
         fontSize=12,
         textColor=colors.HexColor('#1f4788'),
-        spaceAfter=8
+        spaceAfter=8,
+        wordWrap='CJK'
     )
     
     normal_style = ParagraphStyle(
         'CustomNormal',
         parent=styles['Normal'],
         fontName=base_font,
-        fontSize=9
+        fontSize=9,
+        wordWrap='CJK'
     )
     
-    # Title
-    elements.append(Paragraph("PHIẾU ĐÁNH GIÁ HIỆU QUẢ CÔNG VIỆC 2025", title_style))
+    # Title - ensure text is unicode
+    title_text = "PHIẾU ĐÁNH GIÁ HIỆU QUẢ CÔNG VIỆC 2025"
+    elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 12))
     
     # Employee Info Table
