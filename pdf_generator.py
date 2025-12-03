@@ -13,49 +13,31 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-# Register Vietnamese font - Remove UTF-8 parameter as it's not valid
+# Register Arial font for Vietnamese support (Working solution from test_full_vietnamese.pdf)
 try:
-    # Priority fonts with good Vietnamese support
-    font_configs = [
-        ('arial.ttf', 'arialbd.ttf', 'Arial'),
-        ('times.ttf', 'timesbd.ttf', 'Times New Roman'),
-        ('tahoma.ttf', 'tahomabd.ttf', 'Tahoma'),
-    ]
+    arial_path = os.path.join(r"C:\Windows\Fonts", "arial.ttf")
+    arialbd_path = os.path.join(r"C:\Windows\Fonts", "arialbd.ttf")
     
-    font_registered = False
+    # Register Arial (regular)
+    if os.path.exists(arial_path):
+        pdfmetrics.registerFont(TTFont('VietnameseFont', arial_path))
+        print("✓ Registered Arial font for Vietnamese")
+    else:
+        raise Exception("Arial font not found")
+    
+    # Register Arial Bold if available
+    if os.path.exists(arialbd_path):
+        pdfmetrics.registerFont(TTFont('VietnameseFontBold', arialbd_path))
+    else:
+        # Use regular as fallback for bold
+        pdfmetrics.registerFont(TTFont('VietnameseFontBold', arial_path))
+    
     font_name = 'VietnameseFont'
     font_name_bold = 'VietnameseFontBold'
     
-    for regular, bold, name in font_configs:
-        regular_path = os.path.join(r"C:\Windows\Fonts", regular)
-        bold_path = os.path.join(r"C:\Windows\Fonts", bold)
-        
-        if os.path.exists(regular_path):
-            try:
-                # Register fonts WITHOUT encoding parameter (reportlab handles it internally)
-                pdfmetrics.registerFont(TTFont(font_name, regular_path))
-                
-                # Try to register bold font, if not available use regular
-                if os.path.exists(bold_path):
-                    pdfmetrics.registerFont(TTFont(font_name_bold, bold_path))
-                else:
-                    pdfmetrics.registerFont(TTFont(font_name_bold, regular_path))
-                
-                font_registered = True
-                print(f"✓ Registered Vietnamese font: {name}")
-                break
-            except Exception as e:
-                print(f"Failed to register {name}: {e}")
-                continue
-    
-    if not font_registered:
-        # Fallback to default font if no suitable font found
-        print("⚠ Warning: No Vietnamese font found, using default Helvetica")
-        font_name = 'Helvetica'
-        font_name_bold = 'Helvetica-Bold'
 except Exception as e:
-    print(f"Font registration error: {e}")
-    font_registered = False
+    print(f"⚠ Font registration error: {e}")
+    print("⚠ Falling back to Helvetica")
     font_name = 'Helvetica'
     font_name_bold = 'Helvetica-Bold'
 
