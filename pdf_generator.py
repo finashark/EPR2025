@@ -133,21 +133,23 @@ def generate_evaluation_pdf(user_info, evaluation_data):
     # KPI Results
     elements.append(Paragraph("I. KẾT QUẢ ĐÁNH GIÁ THÀNH TÍCH (KPI)", heading_style))
     
-    kpi_data = [['STT', 'Tiêu chí', 'Trọng số', 'Kết quả (%)', 'Điểm đạt']]
+    kpi_data = [['STT', 'Tiêu chí', 'Trọng số', 'Kết quả (%)', 'Điểm đạt', 'Minh chứng/Ví dụ']]
     
     for i, item in enumerate(evaluation_data.get('kpi_items', []), 1):
+        evidence_text = item.get('evidence', '') or 'Chưa nhập'
         kpi_data.append([
             str(i),
             Paragraph(item['name'], normal_style),
             f"{item['weight']:.0f}",
             f"{item['result']:.1f}%",
-            f"{item['score']:.2f}"
+            f"{item['score']:.2f}",
+            Paragraph(evidence_text, normal_style)
         ])
     
     kpi_data.append(['', 'TỔNG KPI THÀNH TÍCH', '', '', 
-                     f"{evaluation_data.get('kpi_total', 0):.2f}%"])
+                     f"{evaluation_data.get('kpi_total', 0):.2f}%", ''])
     
-    kpi_table = Table(kpi_data, colWidths=[15*mm, 85*mm, 25*mm, 25*mm, 25*mm])
+    kpi_table = Table(kpi_data, colWidths=[10*mm, 50*mm, 15*mm, 18*mm, 18*mm, 64*mm])
     kpi_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, 0), base_font_bold),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -165,22 +167,24 @@ def generate_evaluation_pdf(user_info, evaluation_data):
     # Competency Results
     elements.append(Paragraph("II. KẾT QUẢ ĐÁNH GIÁ NĂNG LỰC", heading_style))
     
-    comp_data = [['STT', 'Năng lực', 'Mức độ', 'Điểm (%)', 'Trọng số', 'Điểm đạt']]
+    comp_data = [['STT', 'Năng lực', 'Mức độ', 'Điểm (%)', 'Trọng số', 'Điểm đạt', 'Minh chứng/Ví dụ']]
     
     for i, item in enumerate(evaluation_data.get('comp_items', []), 1):
+        evidence_text = item.get('evidence', '') or 'Chưa nhập'
         comp_data.append([
             str(i),
             Paragraph(item['name'], normal_style),
             str(item['level']),
             f"{item['percentage']:.0f}%",
             str(item['weight']),
-            f"{item['score']:.2f}"
+            f"{item['score']:.2f}",
+            Paragraph(evidence_text, normal_style)
         ])
     
     comp_data.append(['', 'TỔNG KPI NĂNG LỰC', '', '', '', 
-                      f"{evaluation_data.get('comp_total', 0):.2f}%"])
+                      f"{evaluation_data.get('comp_total', 0):.2f}%", ''])
     
-    comp_table = Table(comp_data, colWidths=[15*mm, 70*mm, 20*mm, 22*mm, 22*mm, 26*mm])
+    comp_table = Table(comp_data, colWidths=[10*mm, 40*mm, 15*mm, 16*mm, 16*mm, 18*mm, 60*mm])
     comp_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, 0), base_font_bold),
         ('FONTSIZE', (0, 0), (-1, -1), 8),

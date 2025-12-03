@@ -694,7 +694,7 @@ def employee_dashboard():
                     
                     # Get KPI items
                     cursor_pdf.execute('''
-                        SELECT ec.kra_name, ec.weight, ed.employee_score
+                        SELECT ec.kra_name, ec.weight, ed.employee_score, ed.employee_comment
                         FROM evaluation_details ed
                         JOIN evaluation_criteria ec ON ed.criterion_id = ec.id
                         WHERE ed.evaluation_id = ?
@@ -704,7 +704,7 @@ def employee_dashboard():
                     kpi_score_sum = 0
                     total_kpi_weight = 0
                     for row in cursor_pdf.fetchall():
-                        kra_name, weight, score = row
+                        kra_name, weight, score, comment = row
                         achieved = score * weight  # score is already in %, weight is %
                         kpi_score_sum += achieved
                         total_kpi_weight += weight
@@ -712,7 +712,8 @@ def employee_dashboard():
                             'name': kra_name,
                             'weight': weight,
                             'result': score,
-                            'score': achieved
+                            'score': achieved,
+                            'evidence': comment or ''
                         })
                     
                     # Calculate KPI result percentage
@@ -720,7 +721,7 @@ def employee_dashboard():
                     
                     # Get competency items
                     cursor_pdf.execute('''
-                        SELECT c.name, c.importance_level, ce.employee_level
+                        SELECT c.name, c.importance_level, ce.employee_level, ce.employee_comment
                         FROM competency_evaluations ce
                         JOIN competencies c ON ce.competency_id = c.id
                         WHERE ce.evaluation_id = ?
@@ -731,7 +732,7 @@ def employee_dashboard():
                     comp_score_sum = 0
                     total_comp_weight = 0
                     for row in cursor_pdf.fetchall():
-                        name, importance_level, level = row
+                        name, importance_level, level, comment = row
                         percentage = level_mapping.get(level, 100)
                         # Score for this competency: percentage * importance_level
                         comp_score = percentage * importance_level
@@ -742,7 +743,8 @@ def employee_dashboard():
                             'level': level,
                             'percentage': percentage,
                             'weight': importance_level,
-                            'score': comp_score
+                            'score': comp_score,
+                            'evidence': comment or ''
                         })
                     
                     # Calculate competency result percentage
