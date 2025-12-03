@@ -15,26 +15,48 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 # Register Vietnamese font
 try:
-    # Try to use Arial Unicode MS or other common fonts with Vietnamese support
-    font_paths = [
-        r"C:\Windows\Fonts\arial.ttf",  # Arial
-        r"C:\Windows\Fonts\times.ttf",  # Times New Roman
-        r"C:\Windows\Fonts\tahoma.ttf", # Tahoma (good Vietnamese support)
+    # Try to use fonts with good Vietnamese support
+    font_configs = [
+        ('arial.ttf', 'arialbd.ttf', 'Arial'),
+        ('times.ttf', 'timesbd.ttf', 'Times'),
+        ('tahoma.ttf', 'tahomabd.ttf', 'Tahoma'),
     ]
     
     font_registered = False
-    for font_path in font_paths:
-        if os.path.exists(font_path):
-            pdfmetrics.registerFont(TTFont('VietnameseFont', font_path))
-            font_registered = True
-            break
+    font_name = 'VietnameseFont'
+    font_name_bold = 'VietnameseFontBold'
+    
+    for regular, bold, name in font_configs:
+        regular_path = os.path.join(r"C:\Windows\Fonts", regular)
+        bold_path = os.path.join(r"C:\Windows\Fonts", bold)
+        
+        if os.path.exists(regular_path):
+            try:
+                pdfmetrics.registerFont(TTFont(font_name, regular_path))
+                
+                # Try to register bold font, if not available use regular
+                if os.path.exists(bold_path):
+                    pdfmetrics.registerFont(TTFont(font_name_bold, bold_path))
+                else:
+                    pdfmetrics.registerFont(TTFont(font_name_bold, regular_path))
+                
+                font_registered = True
+                print(f"✓ Registered Vietnamese font: {name}")
+                break
+            except Exception as e:
+                print(f"Failed to register {name}: {e}")
+                continue
     
     if not font_registered:
         # Fallback to default font if no suitable font found
-        print("Warning: No Vietnamese font found, using default Helvetica")
+        print("⚠ Warning: No Vietnamese font found, using default Helvetica")
+        font_name = 'Helvetica'
+        font_name_bold = 'Helvetica-Bold'
 except Exception as e:
     print(f"Font registration error: {e}")
     font_registered = False
+    font_name = 'Helvetica'
+    font_name_bold = 'Helvetica-Bold'
 
 def generate_evaluation_pdf(user_info, evaluation_data):
     """Generate PDF report for evaluation"""
@@ -47,8 +69,8 @@ def generate_evaluation_pdf(user_info, evaluation_data):
     styles = getSampleStyleSheet()
     
     # Use Vietnamese font if available
-    base_font = 'VietnameseFont' if font_registered else 'Helvetica'
-    base_font_bold = 'VietnameseFont' if font_registered else 'Helvetica-Bold'
+    base_font = font_name
+    base_font_bold = font_name_bold
     
     # Custom styles
     title_style = ParagraphStyle(
